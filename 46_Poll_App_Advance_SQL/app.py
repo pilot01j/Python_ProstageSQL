@@ -23,6 +23,7 @@ def prompt_create_poll(connection):
     poll_title = input("Enter poll title: ")
     poll_owner = input("Enter poll owner: ")
     options = []
+
     while (new_option := input(NEW_OPTION_PROMPT)):
         options.append(new_option)
 
