@@ -1,0 +1,49 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+
+# Funcție pentru a căuta știri pe site-ul zdg.md bazat pe denumirea companiei și cuvântul cheie
+def search_news(company_name):
+    # Construiește URL-ul pentru căutare
+    search_url = f"https://www.zdg.md/?s={company_name}"
+
+    # Obține conținutul paginii
+    response = requests.get(search_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Găsește toate elementele care conțin titlurile și linkurile știrilor
+    articles = soup.find_all('article')
+    # print(articles)
+
+    # Parcurge fiecare articol și verifică dacă conține cuvântul cheie
+    for article in articles:
+        title = article.find('span', class_='inner-title').text.strip()
+        link = article.find('a', class_='list-item__link-inner')['href']
+        # date = article.find('span', class_='date-timestamp').text.strip()
+        date_element = soup.find('span', class_='date-timestamp')
+        date = date_element.text.strip() if date_element else "Data indisponibilă"
+
+        if company_name.lower() in title.lower():
+            print("Titlu:", title)
+            print("Link:", link)
+            print("Data:", date)
+            print()
+
+
+# Funcție pentru a citi denumirile companiilor din fișierul Excel și căuta știri pentru fiecare
+def process_companies(filename):
+    # Încarcă fișierul Excel
+    df = pd.read_excel(filename)
+
+    # Obține lista de denumiri de companii din coloana 'den_company'
+    company_names = df['den_company'].tolist()
+
+    # Parcurge fiecare companie și caută știri
+    for company_name in company_names:
+        print(f"===== Căutare pentru compania '{company_name}' =====")
+        search_news(company_name)
+
+
+# Apelăm funcția cu fișierul Excel dorit
+process_companies('num
